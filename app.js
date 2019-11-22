@@ -1,122 +1,118 @@
-console.log('worked');
+const posts = [];
 
-let nextId = 1;
 const rootEl = document.getElementById('root');
 const formEl = document.createElement('form');
-formEl.className = 'form-inline mb-2';
+formEl.className = 'form-inline mb-2 justify-content-center';
+
 formEl.innerHTML = `
     <div class="form-group">
-        <input class="form-control" data-id="link">
+        <input class="form-control" data-type="link">
     </div>
-    <select class="custom-select" data-id="type">
-        <option value="regular">Обычный</option>
-        <option value="image">Изображение</option>
-        <option value="audio">Аудио</option>
-        <option value="video">Видео</option>
+    <select class="custom-select" data-type="type">
+        <option> Обычный текст </option>
+        <option> Изображение   </option>
+        <option> Аудио         </option>
+        <option> Видео         </option>
     </select>
-    <button class="btn btn-primary">Ok</button>
+    <button class="btn btn-primary" data-type="btn">Ok</button>
 `;
-const linkEl = formEl.querySelector('[data-id=link]');
-const typeEl = formEl.querySelector('[data-id=type]');
+const linkEl = formEl.querySelector('[data-type=link]');
+const typeEl = formEl.querySelector('[data-type=type]');
+const btnEl  = formEl.querySelector('[data-type=btn]');
 
-formEl.addEventListener('submit', ev => {
+btnEl.addEventListener('click', ev => {
     ev.preventDefault();
     const value = linkEl.value;
-    const type = typeEl.value; 
-
-    const post = {
-        id:nextId++,
+    const type  = typeEl.value;
+    posts.push({
         value,
         type,
-        likes: 0,       
-    } 
-    addPost(postsEl, post);
+        likes: 0,
+    });
     linkEl.value = '';
-    typeEl.value = 'regular';
+    typeEl.value = 'Обычный текст';
     linkEl.focus();
-    
-});
+    addPost(postsEl, posts);
+})
+
 rootEl.appendChild(formEl);
 
 const postsEl = document.createElement('div');
 rootEl.appendChild(postsEl);
 
-function addPost(containerEl, item) {
+function addPost(containerEl, items) {
+    for (const item of [...containerEl.children]) {
+        containerEl.removeChild(item)
+    }
+    items.sort((a, b) => b.likes - a.likes)
+    for (const item of items) {
         const postEl = document.createElement('div');
         postEl.className = 'card mb-2';
-        if (item.type === 'regular') {
+        if (item.type === 'Обычный текст') {
             postEl.innerHTML = `
-                <div class="card-body">
-                    <div class="card-text">${item.value}</div>
-                    <button class="btn" data-id="likes">♡ ${item.likes}</button>
-                    <button class="btn btn-primary" data-action="like">like</button>
-                    <button class="btn btn-danger" data-action="dislike">dislike</button>   
+                <div class="card">
+                    <div class="card-body">
+                        <p class="card-text">${item.value}</p>
+                        <button data-action="like" class="btn btn-primary">♡ ${item.likes}</button>
+                        <button data-action="dislike" class="btn btn-primary">👎</button>
+                    </div>
                 </div>
-            `;
-        } else if (item.type === 'image') {
+           `;
+        } else if (item.type === 'Изображение') {
             postEl.innerHTML = `
-                <img src="${item.value}" class="card-img-top" width="200" height="200">
-                <div class="card-body">
-                    <button class="btn" data-id="likes"> ♡ ${item.likes}</button>                    
-                    <button class="btn btn-primary" data-action="like">like</button>
-                    <button class="btn btn-danger" data-action="dislike">dislike</button>
+                <div class="card">
+                    <img src="${item.value}" class="card-img-top" width="200" height="200">
+                    <div class="card-body">
+                        <button data-action="like" class="btn btn-primary">♡ ${item.likes}</button>
+                        <button data-action="dislike" class="btn btn-primary">👎</button>
+                    </div>
                 </div>
-            `;
-        } else if(item.type ==='video'){
+           `;
+        } else if (item.type === 'Видео') {
+            postEl.innerHTML = `
+                <div class="card">
+                    <div class="card-img-top embed-responsive embed-responsive-16by9">
+                        <video src="${item.value}" controls=""></video>
+                    </div>
+                    <div class="card-body">
+                        <button data-action="like" class="btn btn-primary">♡ ${item.likes}</button>
+                        <button data-action="dislike" class="btn btn-primary">👎</button>
+                    </div>
+                </div>
+           `;
+        } else if (item.type === 'Аудио') {
             postEl.innerHTML = `
                 <div class = "card">
                 <div class = "card-img-topcard-img-top embed-responsive embed-responsive-16by9">
-                <video src = "${item.value}" class = "embed-responsive-item" controls>
+                    <audio src = "${item.value}"  class = "embed-responsive-item" controls>
                 </div>
-                <div class = "card-body">
-                <button class="btn" data-id="likes"> ♡ ${item.likes}</button>
-                <button class="btn btn-primary" data-action="like">like</button>
-                <button class="btn btn-danger" data-action="dislike">dislike</button>
+                    <div class="card-body">
+                        <button data-action="like" class="btn btn-primary">♡ ${item.likes}</button>
+                        <button data-action="dislike" class="btn btn-primary">👎</button>
+                    </div>
                 </div>
-                </div>
-            `;
-        } else if(item.type === 'audio'){
-            postEl.innerHTML = `
-            <div class = "card">
-            <div class = "card-img-topcard-img-top embed-responsive embed-responsive-16by9">
-                <audio src = "${item.value}"  class = "embed-responsive-item" controls>
-            </div>
-            <div class = "card-body"
-            <button class="btn" data-id="likes">♡ ${item.likes}</button>
-            <button class="btn btn-primary" data-action="like">like</button>
-            <button class="btn btn-danger" data-action="dislike">dislike</button>
-            </div>
-            </div>
-            `;
-        };
-        postEl.item=item;
-        postEl.querySelector('[data-action=like]').addEventListener('click', ev =>{
-            item.likes++;
-            syncPost(postEl);
-        });
-        postEl.querySelector('[data-action=dislike]').addEventListener('click',ev =>{
-            item.likes--;
-            syncPost(postEl);
-        });
+           `;
+        }
+        postEl.addEventListener('click', ev => {
+            if (ev.target.dataset.action === 'like') {
+                item.likes++;
+            } else if (ev.target.dataset.action === 'dislike') {
+                item.likes--;
+            } 
+            addPost(containerEl, items);
+        })
         containerEl.appendChild(postEl);
     }
+}
 
-    function syncPost(itemEl){
-        itemEl.querySelector('[data-id=likes]').textContent = itemEl.item.likes;
-        const parentEl = itemEl.parentElement;
-        const childrenEl = Array.from(parentEl.children);
-        childrenEl.sort((a,b) =>{
-            return -(a.item.likes - b.item.likes);
-        });
-        const itemIndex = childrenEl.indexOf(itemEl);
-        if(itemIndex === 0){
-            parentEl.insertBefore(itemEl,parentEl.firstElementChild);
-            return;
-        }
-        parentEl.insertBefore(itemEl,childrenEl[itemIndex+1]);
-    }
-        
-          
+
+
+   
+ 
+    
+
+
+ 
 
         
            
